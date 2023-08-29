@@ -183,8 +183,10 @@ def runas(cmdLine, username, password=None, cwd=None):
         | win32process.CREATE_SUSPENDED
     )
 
+    flags = win32con.STARTF_USESTDHANDLES
+    flags |= win32con.STARTF_USESHOWWINDOW
     startup_info = salt.platform.win.STARTUPINFO(
-        dwFlags=win32con.STARTF_USESTDHANDLES,
+        dwFlags=flags,
         hStdInput=stdin_read.handle,
         hStdOutput=stdout_write.handle,
         hStdError=stderr_write.handle,
@@ -200,7 +202,7 @@ def runas(cmdLine, username, password=None, cwd=None):
             int(user_token),
             logonflags=1,
             applicationname=None,
-            commandline=f"cmd /c \"{cmdLine}\"",
+            commandline=f'cmd /c "{cmdLine}"',
             currentdirectory=cwd,
             creationflags=creationflags,
             startupinfo=startup_info,
@@ -282,8 +284,10 @@ def runas_unpriv(cmd, username, password, cwd=None):
     dupin = salt.platform.win.DuplicateHandle(srchandle=stdin, inherit=True)
 
     # Get startup info structure
+    flags = win32con.STARTF_USESTDHANDLES
+    flags |= win32con.STARTF_USESHOWWINDOW
     startup_info = salt.platform.win.STARTUPINFO(
-        dwFlags=win32con.STARTF_USESTDHANDLES,
+        dwFlags=flags,
         hStdInput=dupin,
         hStdOutput=c2pwrite,
         hStdError=errwrite,
@@ -296,7 +300,7 @@ def runas_unpriv(cmd, username, password, cwd=None):
             domain=domain,
             password=password,
             logonflags=salt.platform.win.LOGON_WITH_PROFILE,
-            commandline=f"cmd /c \"{cmd}\"",
+            commandline=f'cmd /c "{cmd}"',
             startupinfo=startup_info,
             currentdirectory=cwd,
         )
